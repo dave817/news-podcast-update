@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/bin/python src/check_updates.py:*)",
+      "Bash(.venv/bin/python src/get_transcript.py:*)",
+      "Bash(.venv/bin/python src/send_email.py:*)",
+      "Bash(.venv/bin/python src/backfill.py:*)",
+      "Bash(.venv/bin/python src/add_feed.py:*)",
+      "Bash(.venv/bin/python src/store.py:*)",
+      "Bash(.venv/bin/python -c:*)",
+      "Bash(yt-dlp:*)",
+      "Bash(ffmpeg:*)",
+      "Read(./**)",
+      "Edit(./data/**)"
+    ]
+  }
+}

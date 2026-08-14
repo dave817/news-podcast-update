@@ -1,0 +1,37 @@
+# ── Secrets — never commit ───────────────────────────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── Your personal content ────────────────────────────────────────────────────
+# Memos, transcripts and the episode DB are private to whoever runs this.
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Your own reader profile stays local; profile.example.md + examples/ ship.
+persona/profile.md
+
+# Your own feed list stays local; feeds.example.yaml ships instead.
+feeds.yaml
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+.venv/
+venv/
+.python-version
+
+# ── Generated scheduling files (contain absolute paths for one machine) ──────
+scripts/*.generated.plist
+
+# ── OS / editor ──────────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp

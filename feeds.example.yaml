@@ -1,0 +1,33 @@
+# Your sources. `setup.sh` copies this to `feeds.yaml`, which is git-ignored —
+# so your reading list stays private even if you push your fork.
+#
+# You normally never edit this by hand. Just paste links:
+#
+#     python3 src/add_feed.py "https://podcasts.apple.com/us/podcast/x/id123"
+#     python3 src/add_feed.py "https://youtube.com/@SomeChannel"
+#     python3 src/add_feed.py "https://feeds.example.com/show.rss"
+#     python3 src/add_feed.py "Acquired"            # searches by name
+#     python3 src/add_feed.py --list
+#     python3 src/add_feed.py --remove "Acquired"
+#
+# Two examples to start with — delete them and add your own.
+#
+# Fields:
+#   name      display name in the email
+#   type      podcast | youtube
+#   lang      en | zh   (hint for transcription)
+#   priority  very_high | high | medium | low
+#   feed_url  the real RSS/Atom URL (add_feed.py works this out for you)
+
+sources:
+  - name: Lenny's Podcast
+    type: podcast
+    lang: en
+    priority: high
+    feed_url: https://api.substack.com/feed/podcast/10845.rss
+
+  - name: Dan Koe Talks
+    type: youtube
+    lang: en
+    priority: high
+    feed_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCWXYDYv5STLk-zoxMP2I1Lw

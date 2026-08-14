@@ -1,0 +1,11 @@
+# Optional: free local transcription (no API key, runs on your own machine).
+#
+# Only needed if you want to transcribe audio WITHOUT paying for Azure.
+# It's a large download (~200MB incl. model runtime), which is why it isn't
+# in the default requirements.txt.
+#
+#   .venv/bin/pip install -r requirements-local-asr.txt
+#
+# Not needed at all if your shows publish captions, or if you use Azure.
+
+faster-whisper>=1.0.0
