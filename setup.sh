@@ -51,11 +51,19 @@ for tool in ffmpeg yt-dlp; do
     echo "  ${YELLOW}!${RESET} $tool not found ${DIM}(needed to transcribe audio: brew install $tool)${RESET}"
   fi
 done
-if command -v claude >/dev/null 2>&1; then
-  echo "  ${GREEN}✓${RESET} claude CLI found"
+# The memo writer: either agent works. Claude Code is used first if both exist.
+AGENT_FOUND=""
+command -v claude >/dev/null 2>&1 && AGENT_FOUND="claude"
+if [ -z "$AGENT_FOUND" ] && command -v codex >/dev/null 2>&1; then AGENT_FOUND="codex"; fi
+
+if [ -n "$AGENT_FOUND" ]; then
+  echo "  ${GREEN}✓${RESET} $AGENT_FOUND CLI found ${DIM}(this is what writes the memos)${RESET}"
+  command -v claude >/dev/null 2>&1 && command -v codex >/dev/null 2>&1 && \
+    echo "    ${DIM}both installed — Claude Code is used by default; force with AGENT=codex${RESET}"
 else
-  echo "  ${YELLOW}!${RESET} claude CLI not found — install from https://claude.com/claude-code"
-  echo "    ${DIM}(this is what writes the memos)${RESET}"
+  echo "  ${YELLOW}!${RESET} no AI agent found — you need ONE of these to write the memos:"
+  echo "    ${DIM}Claude Code  https://claude.com/claude-code${RESET}"
+  echo "    ${DIM}Codex CLI    https://developers.openai.com/codex/cli${RESET}"
 fi
 
 # ── 5. What to do next ───────────────────────────────────────────────────────
@@ -80,7 +88,7 @@ ${BOLD}Next — 3 things, ~5 minutes${RESET}
 
 ${BOLD}Then test it:${RESET}
      ./.venv/bin/python src/check_updates.py     ${DIM}# should list your shows${RESET}
-     claude "/daily-brief daily"                 ${DIM}# full run + email${RESET}
+     ./scripts/daily.sh                          ${DIM}# full run + email (uses whichever agent you have)${RESET}
 
 ${BOLD}Run it every morning at 8am:${RESET}
      ./scripts/install-schedule.sh

@@ -62,6 +62,7 @@ else
   printf '%s✓%s cron entry added for %02d:%02d daily\n' "$GREEN" "$RESET" "$HOUR" "$MIN"
 fi
 
+if command -v claude >/dev/null 2>&1; then
 cat <<EOF
 
 ${YELLOW}${BOLD}One more step — do this or the scheduled run cannot send email${RESET}
@@ -73,8 +74,18 @@ the memos but silently fails to email them.
   ${BOLD}cd "$PROJECT" && claude${RESET}
   → answer ${BOLD}"Yes, proceed"${RESET} to "Do you trust the files in this folder?", then exit.
 
+If a log in logs/ ever contains ${BOLD}"has not been trusted"${RESET}, redo that step.
+EOF
+else
+cat <<EOF
+
+${DIM}Using Codex — no trust prompt needed. The schedule re-enables network access
+inside the sandbox automatically (see scripts/daily.sh).${RESET}
+EOF
+fi
+
+cat <<EOF
+
 Check a run afterwards with:
   tail -f "$PROJECT/logs/daily-\$(date +%Y%m%d).log"
-
-If that log ever contains ${BOLD}"has not been trusted"${RESET}, redo the step above.
 EOF

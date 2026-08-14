@@ -8,7 +8,7 @@ the parts that matter *given who you are and what you're working on*.
 
 ```
    your links  ──▶  new episodes  ──▶  transcript  ──▶  memo written for YOU  ──▶  📧 email
-                    (checked daily)     (free)          (Claude Code)            (8am)
+                    (checked daily)     (free)       (Claude Code or Codex)      (8am)
 ```
 
 Each memo answers: what's the real idea, why it matters to you, what you might be missing,
@@ -22,11 +22,16 @@ was worth your time. **Quiet days send no email at all.**
 
 | | Needed? | Cost |
 |---|---|---|
-| **[Claude Code](https://claude.com/claude-code)** | **Required** — it writes the memos | Your existing Claude subscription. No API key, no per-memo charge |
+| **An AI agent — [Claude Code](https://claude.com/claude-code) *or* [Codex CLI](https://developers.openai.com/codex/cli)** | **Required** — it writes the memos. Either one works | Your existing Claude or ChatGPT subscription. No API key, no per-memo charge |
 | **An email account** | **Required** — to receive the brief | Free. Gmail needs an "app password" (2 minutes, instructions below) |
 | **Python 3.9+** | **Required** | Free |
 | `ffmpeg` + `yt-dlp` | Only to transcribe audio | Free — `brew install ffmpeg yt-dlp` |
 | **Azure OpenAI key** | **Optional** — faster transcription | ~$0.30–0.40 per audio-hour. **Skip it** and it uses free local transcription instead |
+
+> **Claude Code or Codex?** Both do the same job here. The whole pipeline — finding
+> episodes, transcribing, emailing — is plain Python that doesn't care which you use;
+> only the memo-writing step calls the agent, and both read the same instructions from
+> `AGENTS.md`. `./scripts/daily.sh` detects whichever you have installed.
 
 > **You bring your own keys.** Everything lives in your own `.env` file on your own machine.
 > Nothing is shared with anyone, and nothing is sent anywhere except the email you send yourself.
@@ -102,7 +107,14 @@ vague profiles produce vague memos.
 
 ```bash
 .venv/bin/python src/check_updates.py     # should list your shows and any new episodes
-claude "/daily-brief daily"               # full run: transcribe → write memos → email
+./scripts/daily.sh                        # full run: transcribe → write memos → email
+```
+
+`daily.sh` picks whichever agent you have. To force one:
+
+```bash
+AGENT=codex  ./scripts/daily.sh
+AGENT=claude ./scripts/daily.sh
 ```
 
 ## Run it automatically every morning
@@ -113,10 +125,14 @@ claude "/daily-brief daily"               # full run: transcribe → write memos
 ./scripts/install-schedule.sh --uninstall # stop it
 ```
 
-> **Important, one time only:** run `claude` once inside this folder and answer
+> **Claude Code users — one time only:** run `claude` once inside this folder and answer
 > **"Yes, proceed"** to *"Do you trust the files in this folder?"*. Until you do, the
 > scheduled run will write memos but **silently fail to email them**. If a log in
 > `logs/` ever says `"has not been trusted"`, that's what happened — redo this step.
+>
+> **Codex users:** nothing extra to do. There's no trust prompt, and `daily.sh` already
+> re-enables network access inside Codex's sandbox (without that, the sandbox blocks
+> feed fetching and email).
 
 Check on it:
 
@@ -137,14 +153,16 @@ tail -f logs/daily-$(date +%Y%m%d).log
 .venv/bin/python src/check_updates.py
 
 # Full run (usually just let the schedule do this)
-claude "/daily-brief daily"
+./scripts/daily.sh
 
 # One specific episode
-claude "/daily-brief one <episode_id>"
+claude "/daily-brief one <episode_id>"          # Claude Code
+codex exec --full-auto -c sandbox_workspace_write.network_access=true \
+  "Read AGENTS.md and run one-episode mode for <episode_id>."   # Codex
 
 # Work through a show's back catalogue
 .venv/bin/python src/backfill.py --source "Lenny's Podcast" --limit 10
-claude "/daily-brief backfill"
+claude "/daily-brief backfill"                  # or the codex equivalent above
 
 # Re-send a day's digest
 .venv/bin/python src/send_email.py --date 2026-08-14
@@ -166,7 +184,9 @@ claude "/daily-brief backfill"
 | `src/send_email.py` | Builds and sends the digest |
 | `src/backfill.py` | Walks a show's archive |
 | `data/` | Your transcripts, memos and episode database — **all local, git-ignored** |
-| `.claude/skills/daily-brief/` | The instructions Claude Code follows |
+| `AGENTS.md` | **The instructions the agent follows** — read by Codex and, via the skill, Claude Code |
+| `.claude/skills/daily-brief/` | Makes it a `/daily-brief` command in Claude Code; defers to `AGENTS.md` |
+| `scripts/daily.sh` | Runs the whole thing with whichever agent you have |
 
 Transcription order: existing captions (free) → podcast RSS transcript (free) →
 Azure (fast, paid, optional) → local Whisper (free, slower).
@@ -181,8 +201,15 @@ Quiet days genuinely send nothing — check `logs/` first. If there were memos b
 Re-send with `.venv/bin/python src/send_email.py --date YYYY-MM-DD`.
 
 **The scheduled run writes memos but never emails.**
-The workspace isn't trusted. Run `claude` in this folder once and accept the trust prompt.
-See the note in "Run it automatically" above.
+*Claude Code:* the workspace isn't trusted — run `claude` in this folder once and accept
+the trust prompt (see "Run it automatically" above).
+*Codex:* the sandbox is blocking the network. Use `./scripts/daily.sh` rather than calling
+`codex exec --full-auto` yourself, since the script adds
+`-c sandbox_workspace_write.network_access=true`.
+
+**Codex finds "no new episodes" every single day.**
+Same cause: the sandbox has no network, so feed fetching silently returns nothing. Run it
+through `./scripts/daily.sh`.
 
 **`add_feed.py` says it can't read the feed.**
 YouTube rate-limits its RSS endpoint and returns random 404s. Wait a minute and retry, or
