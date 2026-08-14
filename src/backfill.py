@@ -1,6 +1,6 @@
 """Backfill archives: enumerate each show's back-catalog, enqueue episodes, and
-(optionally) transcribe them. Memo-writing is done afterward by the /solo-brief
-skill (Opus), reading the resulting transcripts.
+(optionally) transcribe them. Memo-writing is done afterward by your AI agent
+(see AGENTS.md, "Backfill mode"), reading the resulting transcripts.
 
 Podcasts: the RSS feed carries the archive (often the full history).
 YouTube:  the RSS caps at 15, so we enumerate the channel with yt-dlp.
@@ -116,7 +116,8 @@ def main() -> int:
         total += backfill_source(src, args.limit, not args.no_transcribe, args.pause)
     store.finish_run(run_id, total, f"limit={args.limit}")
     log(f"\nbackfill complete: {total} new episode(s) enqueued")
-    log("next: run the /solo-brief skill to write memos for the transcribed episodes")
+    log("next: have your agent write the memos — Claude Code: /daily-brief backfill;")
+    log("      Codex: ask it to follow AGENTS.md backfill mode")
     return 0
 
 
