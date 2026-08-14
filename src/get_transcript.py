@@ -23,7 +23,10 @@ import transcribe_azure
 import transcribe_local
 from common import AUDIO, TRANSCRIPTS, env, log
 
-UA = {"User-Agent": "Mozilla/5.0 (Macintosh) SoloBrief/1.0"}
+# Browser-like UA: some podcast CDNs and transcript hosts reject bot-looking
+# agents outright (YouTube's RSS endpoint 404s them — see feeds.py).
+UA = {"User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")}
 
 
 # --- VTT / caption cleaning --------------------------------------------------
